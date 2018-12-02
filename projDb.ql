@@ -41,7 +41,8 @@ CREATE TABLE properties (
 	rentperhouse		INTEGER,
 	price			INTEGER,
 	renthouseprice	INTEGER,
-	location		INTEGER
+	location		INTEGER,
+	username
 );
 --
 CREATE TABLE special_properties (
