@@ -26,13 +26,19 @@ CREATE TABLE players (
 	gamepiece	INTEGER,
 	password	INTEGER,
 	firstname	VARCHAR2(20),
-	lastname	VARCHAR2(30)
+	lastname	VARCHAR2(30),
+--
+-- PlIC1: All players must have a unique username
+CONSTRAINT PlIC1 UNIQUE (username)
 );
 --
 CREATE TABLE game (
 	gameID		INTEGER,
 	gamerules	VARCHAR2(5),
 	playersingame	INTEGER
+--
+-- GIC1: There can be no more than 6 players in a game
+CONSTRAINT GIC1 CHECK (playersingame <= 6)
 );
 --
 CREATE TABLE properties (
@@ -42,7 +48,9 @@ CREATE TABLE properties (
 	price			INTEGER,
 	renthouseprice	INTEGER,
 	location		INTEGER,
-	username
+	username,
+-- PRIC1: The property name is the foreign key for the player
+CONSTRAINT PRIC1 FOREIGN KEY (username) REFERENCES players (username)
 );
 --
 CREATE TABLE special_properties (
@@ -50,6 +58,9 @@ CREATE TABLE special_properties (
 	rent		INTEGER,
 	price		INTEGER,
 	propertype	VARCHAR2(10)
+--
+-- SPIC1: If type is utilities the price can't be more than $250
+CONSTRAINT SPIC1 CHECK (NOT(type = "utilities" AND price > 250)
 );
 --
 CREATE TABLE special_spaces (
