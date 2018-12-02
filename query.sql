@@ -7,15 +7,11 @@ FROM
 WHERE		
 
 
-
-
-
-
 --A self-join
 --This query displays pairs of properties with the same rent per house
 SELECT	DISTINCT	p1.propertyname, p2.propertyname
 FROM			properties p1, properties p2
-WHERE			p1.rentperhouse=p2.rentperhouse AND ASCII(p1.propertyname) > ASCII(p2.propertyname)
+WHERE			p1.renthouseprice=p2.renthouseprice AND ASCII(p1.propertyname) > ASCII(p2.propertyname);
 
 
 --UNION, INTERSECT, and/or MINUS
