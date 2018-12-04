@@ -40,13 +40,16 @@ CREATE TABLE playhistory(
 	username  VARCHAR2(15),
 	dateplayed	date,
 	endbalance	INTEGER,
-	endresult	char(1)	
+	endresult	char(1),
+	primary key  (username, dateplayed),
+--PHIC1 The username is a foreign key for the player.
+CONSTRAINT PHIC1 FOREIGN KEY(username) REFERENCES players (username)	
 );
 --
 CREATE TABLE game (
 	gameID		INTEGER PRIMARY KEY,
 	gamerules	VARCHAR2(5),
-	numPlayers	INTEGER
+	numPlayers	INTEGER,
 --
 -- GIC1: There can be no more than 6 players in a game
 CONSTRAINT GIC1 CHECK (numPlayers <= 6)
@@ -80,13 +83,21 @@ CREATE TABLE special_spaces (
 );
 --
 CREATE TABLE plays (
-	PRIMARY KEY (username, gameID)
+	username	VARCHAR2(15),
+	gameID		INTEGER,
+	PRIMARY KEY (username, gameID),
+--PIC1: The username is the foreign key for the player
+CONSTRAINT PIC1 FOREIGN KEY (username) REFERENCES players (username),
+--PIC2: The gameID is the foreign key for the game.
+CONSTRAINT PIC2 FOREIGN KEY (gameID) REFERENCES game (gameID)
 );
 --
 CREATE TABLE rent (
-	primary key (
-		username@
-		rentamt number)
+	username	VARCHAR2(15),
+	rentamt	INTEGER,
+	primary key (username, rentamt),
+--AIC1: The username is the foreign key for the rent.
+CONSTRAINT AIC1 FOREIGN KEY (username) REFERENCES players (username)
 );
 
 
@@ -114,7 +125,7 @@ insert into game values (198273, 'YNNYY', 3);
 insert into properties values ('Baltic', 30, 30, 60, 50, 4, 'BoardGamePro13');
 insert into properties values ('Vermont', 50, 50, 100, 50, 9, 'MonopolyMan99');
 insert into properties values ('States', 70, 50, 140, 100, 14, 'Dog39Lover');
-insert into properties values ('NewYork',100 ,75 ,200 ,100 , 20, 'DogLover 12');
+insert into properties values ('NewYork',100 ,75 ,200 ,100 , 20, 'DogLover12');
 insert into properties values ('Kentucky', 110, 100, 220, 150, 22,'Railroader');
 insert into properties values ('Atlantic', 130, 125, 260, 150, 27, 'PropertyKing');
 insert into properties values ('Pacific', 150, 175, 300, 200, 32, 'MunyBags');
@@ -122,11 +133,11 @@ insert into properties values ('BoardWalk', 200, 200, 400, 200, 40, 'MunyBags');
 insert into special_properties values (6, 50, 200, 'Railroad');
 insert into special_properties values (16, 50, 200, 'RailRoad');
 insert into special_properties values (13, 90, 150, 'Utility');
-insert into special_propoerties values (29, 70, 150,'Utility');
-insert into special_spaces vaules (1, 'Go');
+insert into special_properties values (29, 70, 150,'Utility');
+insert into special_spaces values (1, 'Go');
 insert into special_spaces values (5, 'Income Tax');
 insert into special_spaces values (11, 'Jail');
-insert into special _spaces values (21, 'Free Parking');
+insert into special_spaces values (21, 'Free Parking');
 insert into special_spaces values (31, 'Go To Jail');
 insert into special_spaces values (39, 'Luxury Tax');
 insert into playhistory values('MunyBags', TO_DATE('11/10/18', 'MM/DD/YY'), 3550, 'W');
@@ -137,6 +148,14 @@ insert into playhistory values('Dog39Lover', TO_DATE('11/10/18', 'MM/DD/YY'), 0,
 insert into playhistory values('MunyBags', TO_DATE('11/14/18', 'MM/DD/YY'), 3250, 'W');
 insert into playhistory values('DogLover12', TO_DATE('11/19/18','MM/DD/YY'), 1500, 'W');
 insert into playhistory values('BoardGamePro13', TO_DATE('11/19/18', 'MM/DD/YY'), 0, 'L');
+insert into plays values('MunyBags', 111111);
+insert into plays values('MunyBags', 813923);
+insert into plays values ('Railroader', 813923);
+insert into plays values('PropertyKing', 382113);
+insert into plays values('MonopolyMan99', 111111);
+insert into plays values('Dog39Lover', 111111);
+insert into plays values('DogLover12', 198273);
+insert into plays values('BoardGamePro13', 198273);
 
 SET FEEDBACK ON
 COMMIT;
@@ -162,9 +181,11 @@ SELECT price FROM properties;
 
 
 --A join involving at least four relations
-SELECT		
-FROM		
-WHERE		
+--This query finds the players who have won in a game against 6 players.
+SELECT DISTINCT P.username, G.gameID		
+FROM	players P, game G, playhistory PH, plays	S
+WHERE	P.username = S.username AND P.username = PH.username AND S.username = PH.username 
+	AND G.gameID = S.gameID AND G.numplayers = 6 AND PH.endresult LIKE 'W';
 
 
 --A self-join
@@ -181,16 +202,8 @@ FROM
 WHERE		
 
 
+
 --SUM, AVG, MAX, and/or MIN
---sum(max of property, avg mortgage value, max renthouseprice
-SELECT	firstname, lastname, SUM(price), AVG(mortgagevalue), MAX(rentperhouse)
-FROM	properties, players
-WHERE	need to finish this part
-
-
-SELECT * FROM playhistory;
-SELECT * FROM players;
-
 --GROUP BY, HAVING, and ORDER BY, all appearing in the same query
 /*This query displays the username, first name, last name, and sum of their ending balances of 
 all players that have a sum of their ending balances that is greater than 0. It then groups those results
@@ -241,9 +254,11 @@ FROM properties;
 --A Top-N query
 --This query displays the top 5 most expensive properties
 SELECT		propertyname, location, price
-FROM		properties
-WHERE		ROWNUM < 6
-ORDER BY	price DESC;
+FROM		(SELECT *
+		FROM properties
+		ORDER BY price DESC)
+WHERE		ROWNUM < 6;
+
 
 --< The insert/delete/update statements to test the enforcement of ICs >
 --Include the following items for every IC that you test (Important: see the next section titled
