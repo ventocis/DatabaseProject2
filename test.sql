@@ -240,10 +240,17 @@ WHERE	bankaccount = 2100 AND username IN(SELECT username
 						  WHERE	endbalance > 0);
 
 
---(Q7) A relational DIVISION query
-SELECT
-FROM		
-WHERE		
+--(Q7)A relational DIVISION query
+--2 ppl that lost in game 1111
+SELECT		P.username
+FROM		players P
+WHERE		P.username	IN((SELECT	H.username
+					FROM 	playhistory H, plays G
+					WHERE	H.username = G.username AND P.username = H.username AND G.gameID = 111111)
+				MINUS
+				   (SELECT h.username
+					FROM playHistory h
+					WHERE h.endresult = 'W'));
 
 
 --(Q8) An outer join query
