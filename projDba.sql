@@ -112,7 +112,7 @@ insert into game values (382113, 'YYYYY', 6);
 insert into game values (138233, 'NNYYN', 2);
 insert into game values (198273, 'YNNYY', 3);
 insert into properties values ('Baltic', 30, 30, 60, 50, 4, 'BoardGamePro13');
-insert into properties values ('Vermont', 50, 50, 100, 50, 9, 'Monopolyman99');
+insert into properties values ('Vermont', 50, 50, 100, 50, 9, 'MonopolyMan99');
 insert into properties values ('States', 70, 50, 140, 100, 14, 'Dog39Lover');
 insert into properties values ('NewYork',100 ,75 ,200 ,100 , 20, 'DogLover 12');
 insert into properties values ('Kentucky', 110, 100, 220, 150, 22,'Railroader');
@@ -131,12 +131,12 @@ insert into special_spaces values (31, 'Go To Jail');
 insert into special_spaces values (39, 'Luxury Tax');
 insert into playhistory values('MunyBags', TO_DATE('11/10/18', 'MM/DD/YY'), 3550, 'W');
 insert into playhistory values('Railroader', TO_DATE('11/14/18', 'MM/DD/YY'), 0, 'L');
-insert into playhistory values('PropertyKing', TO_DATE('11/18/18','MM/DD/YY'), 1300, W);
-insert into playhistory values('Monopolyman99', TO_DATE('11/10/18', 'MM/DD/YY'), 0, 'L');
+insert into playhistory values('PropertyKing', TO_DATE('11/18/18','MM/DD/YY'), 1300, 'W');
+insert into playhistory values('MonopolyMan99', TO_DATE('11/10/18', 'MM/DD/YY'), 0, 'L');
 insert into playhistory values('Dog39Lover', TO_DATE('11/10/18', 'MM/DD/YY'), 0, 'L');
 insert into playhistory values('MunyBags', TO_DATE('11/14/18', 'MM/DD/YY'), 3250, 'W');
 insert into playhistory values('DogLover12', TO_DATE('11/19/18','MM/DD/YY'), 1500, 'W');
-insert into playhistory values('BoardGamePro13', TO/DATE('11/19/18', 'MM/DD/YY'), 0, 'L');
+insert into playhistory values('BoardGamePro13', TO_DATE('11/19/18', 'MM/DD/YY'), 0, 'L');
 
 SET FEEDBACK ON
 COMMIT;
@@ -145,7 +145,7 @@ COMMIT;
 --database >
 
 SELECT * FROM players;
-SELECT * FROM playhist;
+SELECT * FROM playhistory;
 SELECT * FROM game;
 SELECT * FROM properties;
 SELECT * FROM special_properties;
@@ -188,10 +188,19 @@ FROM	properties, players
 WHERE	need to finish this part
 
 
+SELECT * FROM playhistory;
+SELECT * FROM players;
+
 --GROUP BY, HAVING, and ORDER BY, all appearing in the same query
-SELECT		
-FROM		
-WHERE		
+/*This query displays the username, first name, last name, and sum of their ending balances of 
+all players that have a sum of their ending balances that is greater than 0. It then groups those results
+by the username and orders them starting with the player with the highest ending balance*/
+SELECT		PH.username, P.firstname, P.lastname, SUM(endbalance)
+FROM		playhistory PH, players P
+WHERE		PH.username = P.username
+GROUP BY	PH.username,P.firstname,P.lastname
+HAVING		SUM(endbalance) > 0
+ORDER BY	SUM(endbalance) DESC;
 
 
 --A correlated subquery
@@ -200,10 +209,15 @@ FROM
 WHERE		
 
 
+
 --A non-correlated subquery
-SELECT		
-FROM		
-WHERE		
+--This query displays the username of all players with a bank account value of 2100 and an ending balance
+--in a previous gamee that is greater than 0
+SELECT		username
+FROM		players
+WHERE		bankaccount = 2100 AND username IN(SELECT	username
+							FROM 	playhistory
+							WHERE	endbalance > 0);
 
 
 --A relational DIVISION query
@@ -240,4 +254,3 @@ ORDER BY	price DESC;
 --
 SET ECHO OFF
 SPOOL OFF
-
