@@ -209,9 +209,14 @@ WHERE	p1.renthouseprice=p2.renthouseprice AND
 
 
 --(Q3) UNION, INTERSECT, and/or MINUS
-SELECT		
-FROM		
-WHERE		
+--This query finds players who have a bank account of over $2000, but have not won a game.
+SELECT	P.username, P.firstname, P.lastname, P.bankaccount	
+FROM	players P	
+WHERE	P.bankaccount > 2000
+MINUS
+SELECT P.username, P.firstname, P.lastname, P.bankaccount
+FROM	players P, playhistory H
+WHERE  P.username = H.username AND H.endresult LIKE 'W';	
 
 
 
