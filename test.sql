@@ -261,9 +261,8 @@ WHERE		P.username	IN((SELECT	H.username
 --(Q8) An outer join query
 --Select the username and number of properties of all players that have properties with rent over 100.
 
-SELECT P.username		
-FROM	players P LEFT OUTER JOIN properties PR ON P.username = PR.username AND PR.rentperhouse > 100;
---CONSTRAINT SPIC1 CHECK (property_type = 'Utility' AND price > 250)
+SELECT P.username, G.gameID		
+FROM	plays P LEFT OUTER JOIN game G ON G.gameID = P.gameID;
 
 
 --(Q9) A RANK query
