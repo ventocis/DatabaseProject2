@@ -43,7 +43,7 @@ CREATE TABLE playhistory(
 	endresult	char(1),
 	primary key  (username, dateplayed),
 --PHIC1 The username is a foreign key for the player.
-CONSTRAINT PHIC1 FOREIGN KEY(username) REFERENCES players (username)	
+CONSTRAINT PIC1 FOREIGN KEY(username) REFERENCES players (username)	
 );
 --
 CREATE TABLE game (
@@ -72,14 +72,20 @@ CREATE TABLE special_properties (
 	rent		INTEGER,
 	price		INTEGER,
 	property_type	VARCHAR2(10),
---
+
+CONSTRAINT PIC1 FOREIGN KEY(location) REFERENCES properties (location)
+
+CONSTRAINT P1C2 FOREIGN KEY(rent) REFERENCES properties (rent)
+
 -- SPIC1: If type is utilities the price can't be more than $250
 CONSTRAINT SPIC1 CHECK (NOT(property_type = 'utilities' AND price > 250))
 );
 --
 CREATE TABLE special_spaces (
 	locationnumber	INTEGER PRIMARY KEY,
-	spacetype	VARCHAR2(15)
+	spacetype	VARCHAR2(15),
+
+CONSTRAINT P1C1 FOREIGN KEY (locationnumber) REFERENCES properties (location)
 );
 --
 CREATE TABLE plays (
@@ -147,7 +153,6 @@ insert into playhistory values('MonopolyMan99', TO_DATE('11/10/18', 'MM/DD/YY'),
 insert into playhistory values('Dog39Lover', TO_DATE('11/10/18', 'MM/DD/YY'), 0, 'L');
 insert into playhistory values('MunyBags', TO_DATE('11/14/18', 'MM/DD/YY'), 3250, 'W');
 insert into playhistory values('DogLover12', TO_DATE('11/19/18','MM/DD/YY'), 1500, 'W');
-insert into playhistory values('BoardGamePro13', TO_DATE('11/19/18', 'MM/DD/YY'), 0, 'L');
 insert into plays values('MunyBags', 111111);
 insert into plays values('MunyBags', 813923);
 insert into plays values ('Railroader', 813923);
@@ -187,34 +192,31 @@ SELECT * FROM rent;
 SELECT price FROM properties;
 
 
---A join involving at least four relations
---This query finds the players who have won in a game against 6 players.
+--(Q1) A join involving at least four relations
+--This query finds the players who have won in a game against 6 players and displays the username, game id, and the date played for each player.
 SELECT DISTINCT P.username, G.gameID, Ph.dateplayed		
 FROM	players P, game G, playhistory PH, plays	S
 WHERE	P.username = S.username AND P.username = PH.username AND S.username = PH.username 
 	AND G.gameID = S.gameID AND G.numplayers = 6 AND PH.endresult LIKE 'W';
 
 
---A self-join
---This query displays pairs of properties with the same rent per house
+--(Q2) A self-join
+--This query displays pairs of properties with the same rent per house.
 SELECT DISTINCT	p1.propertyname, p2.propertyname
 FROM	properties p1, properties p2
 WHERE	p1.renthouseprice=p2.renthouseprice AND 
 	ASCII(p1.propertyname) > ASCII(p2.propertyname);
 
 
---UNION, INTERSECT, and/or MINUS
+--(Q3) UNION, INTERSECT, and/or MINUS
 SELECT		
 FROM		
 WHERE		
 
 
 
---SUM, AVG, MAX, and/or MIN
---GROUP BY, HAVING, and ORDER BY, all appearing in the same query
-/*This query displays the username, first name, last name, and sum of their ending balances of 
-all players that have a sum of their ending balances that is greater than 0. It then groups those results
-by the username and orders them starting with the player with the highest ending balance*/
+--(Q4) SUM query that includesGROUP BY, HAVING, and ORDER BY, all appearing in the same query
+/*This query displays the username, first name, last name, and sum of their ending balances of all players that have a sum of their ending balances that is greater than 0. It then groups those results by the username and orders them starting with the player with the highest ending balance*/
 SELECT		PH.username, P.firstname, P.lastname, SUM(endbalance)
 FROM		playhistory PH, players P
 WHERE		PH.username = P.username
@@ -223,42 +225,45 @@ HAVING		SUM(endbalance) > 0
 ORDER BY	SUM(endbalance) DESC;
 
 
---A correlated subquery
-SELECT		
-FROM		
-WHERE		
+--(Q5) A correlated subquery
+--This query finds all new players who do not have a histroy of playing monopoly whose bankaccount is greater than 1000 and displays their firstname, username, and gamepiece.
+SELECT P.username, P.firstname, P.gamepiece		
+FROM	players P
+WHERE	P.bankaccount > 1000 AND
+	NOT EXISTS (SELECT * FROM playerhistory PR WHERE P.username = PR.username);
 
 
 
---A non-correlated subquery
---This query displays the username of all players with a bank account value of 2100 and an ending balance
---in a previous gamee that is greater than 0
-SELECT		username
-FROM		players
-WHERE		bankaccount = 2100 AND username IN(SELECT	username
-							FROM 	playhistory
-							WHERE	endbalance > 0);
+--(Q6) A non-correlated subquery
+--This query displays the username of all players with a bank account value of 2100 and an ending balance in a previous gamee that is greater than 0
+SELECT	username
+FROM	players
+WHERE	bankaccount = 2100 AND username IN(SELECT username
+						  FROM 	playhistory
+						  WHERE	endbalance > 0);
 
 
---A relational DIVISION query
+--(Q7) A relational DIVISION query
 SELECT
 FROM		
 WHERE		
 
 
---An outer join query
-SELECT		
-FROM		
-WHERE		
+--(Q8) An outer join query
+--Select the username and number of properties of all players that have more than 3 properties.
+
+SELECT P.username, COUNT(properties)		
+FROM	players P LEFT OUTER JOIN properties PR ON P.username = PR.username AND
+	COUNT(properties) > 3;
 
 
---A RANK query
+--(Q9) A RANK query
 --This query selects the player with the third most money in their bank account
 SELECT	RANK(140) WITHIN GROUP
 	(ORDER BY price DESC)  "Rank of 200"
 FROM properties;
 
---A Top-N query
+--(Q10) A Top-N query
 --This query displays the top 5 most expensive properties
 SELECT		propertyname, location, price
 FROM		(SELECT *

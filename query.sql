@@ -9,9 +9,10 @@ WHERE
 
 --A self-join
 --This query displays pairs of properties with the same rent per house
-SELECT	DISTINCT	p1.propertyname, p2.propertyname
-FROM			properties p1, properties p2
-WHERE			p1.renthouseprice=p2.renthouseprice AND ASCII(p1.propertyname) > ASCII(p2.propertyname);
+SELECT DISTINCT	p1.propertyname, p2.propertyname
+FROM	properties p1, properties p2
+WHERE	p1.renthouseprice=p2.renthouseprice AND 
+	ASCII(p1.propertyname) > ASCII(p2.propertyname);
 
 
 --UNION, INTERSECT, and/or MINUS
@@ -22,9 +23,9 @@ WHERE
 
 --SUM, AVG, MAX, and/or MIN
 --sum(max of property, avg mortgage value, max renthouseprice
-SELECT		firstname, lastname, SUM(price), AVG(mortgagevalue), MAX(rentperhouse)
-FROM		properties, players
-WHERE		need to finish this part
+SELECT	firstname, lastname, SUM(price), AVG(mortgagevalue), MAX(rentperhouse)
+FROM	properties, players
+WHERE	need to finish this part
 
 
 --GROUP BY, HAVING, and ORDER BY, all appearing in the same query
