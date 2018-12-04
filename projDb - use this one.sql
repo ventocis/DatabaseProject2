@@ -78,7 +78,7 @@ CONSTRAINT PIC1 FOREIGN KEY(location) REFERENCES properties (location)
 CONSTRAINT P1C2 FOREIGN KEY(rent) REFERENCES properties (rent)
 
 -- SPIC1: If type is utilities the price can't be more than $250
-CONSTRAINT SPIC1 CHECK (NOT(property_type = 'utilities' AND price > 250))
+CONSTRAINT SPIC1 CHECK (NOT(property_type = 'Utility' AND price > 250))
 );
 --
 CREATE TABLE special_spaces (
@@ -271,13 +271,18 @@ FROM		(SELECT *
 		ORDER BY price DESC)
 WHERE		ROWNUM < 6;
 
+--<TESTING CONSTRAINTS>
+--Testing: GIC1
+insert into game values(123456, 'NNYYN', 10);
 
---< The insert/delete/update statements to test the enforcement of ICs >
---Include the following items for every IC that you test (Important: see the next section titled
--- "Submit a final report" regarding which ICs to test).
-  --A comment line stating: Testing: < IC name>
-  --A SQL INSERT, DELETE, or UPDATE that will test the IC.
+--Testing: PlIC1
+insert into players values('MunyBags', 9999, 'cannon', 'rejectme', 'Sam', 'Differson');
 
+--Testing: PHIC1
+insert into playhistory values('CatLover10', TO_DATE('12/1/18', 'MM/DD/YY'), 9999, 'W');
+
+--Testing: SPIC1
+insert into special_properties values(9, 100, 350, 'Utility');
 --
 SET ECHO OFF
 SPOOL OFF
