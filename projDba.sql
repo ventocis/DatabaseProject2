@@ -156,7 +156,14 @@ insert into plays values('MonopolyMan99', 111111);
 insert into plays values('Dog39Lover', 111111);
 insert into plays values('DogLover12', 198273);
 insert into plays values('BoardGamePro13', 198273);
-
+insert into rent values('MunyBags', 2000);
+insert into rent values('PropertyKing', 300);
+insert into rent values('DogLover12', 12);
+insert into rent values('MunyBags', 1500);
+insert into rent values('BoardGamePro13', 6);
+insert into rent values('Railroader', 120);
+insert into rent values('Dog39Lover', 175);
+insert into rent values('MonopolyMan99', 350);
 SET FEEDBACK ON
 COMMIT;
 
@@ -182,7 +189,7 @@ SELECT price FROM properties;
 
 --A join involving at least four relations
 --This query finds the players who have won in a game against 6 players.
-SELECT DISTINCT P.username, G.gameID		
+SELECT DISTINCT P.username, G.gameID, Ph.dateplayed		
 FROM	players P, game G, playhistory PH, plays	S
 WHERE	P.username = S.username AND P.username = PH.username AND S.username = PH.username 
 	AND G.gameID = S.gameID AND G.numplayers = 6 AND PH.endresult LIKE 'W';
