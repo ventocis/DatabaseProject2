@@ -43,7 +43,7 @@ CREATE TABLE playhistory(
 	endresult	char(1),
 	primary key  (username, dateplayed),
 --PHIC1 The username is a foreign key for the player.
-CONSTRAINT PIC1 FOREIGN KEY(username) REFERENCES players (username)	
+CONSTRAINT PHIC1 FOREIGN KEY(username) REFERENCES players (username)	
 );
 --
 CREATE TABLE game (
@@ -67,49 +67,46 @@ CREATE TABLE properties (
 CONSTRAINT PRIC1 FOREIGN KEY (username) REFERENCES players (username)
 );
 --
-CREATE TABLE special_properties (
+CREATE TABLE special_properties(
 	location	INTEGER PRIMARY KEY,
 	rent		INTEGER,
 	price		INTEGER,
 	property_type	VARCHAR2(10),
-
-CONSTRAINT PIC1 FOREIGN KEY(location) REFERENCES properties (location)
-
-CONSTRAINT P1C2 FOREIGN KEY(rent) REFERENCES properties (rent)
-
--- SPIC1: If type is utilities the price can't be more than $250
-CONSTRAINT SPIC1 CHECK (NOT(property_type = 'Utility' AND price > 250))
+--	
+CONSTRAINT SPIC1 CHECK (property_type != 'Utility' AND price <= 250)
 );
+
+--SPIC1: If type is utilities the price can't be more than $250
+--CONSTRAINT SPIC1 CHECK (property_type = 'Utility' AND price > 250)
+
 --
 CREATE TABLE special_spaces (
 	locationnumber	INTEGER PRIMARY KEY,
-	spacetype	VARCHAR2(15),
-
-CONSTRAINT P1C1 FOREIGN KEY (locationnumber) REFERENCES properties (location)
+	spacetype	VARCHAR2(15)
 );
 --
 CREATE TABLE plays (
 	username	VARCHAR2(15),
 	gameID		INTEGER,
-	PRIMARY KEY (username, gameID),
---PIC1: The username is the foreign key for the player
-CONSTRAINT PIC1 FOREIGN KEY (username) REFERENCES players (username),
---PIC2: The gameID is the foreign key for the game.
-CONSTRAINT PIC2 FOREIGN KEY (gameID) REFERENCES game (gameID)
+	PRIMARY KEY (username, gameID)
 );
 --
 CREATE TABLE rent (
 	username	VARCHAR2(15),
 	rentamt	INTEGER,
-	primary key (username, rentamt),
---AIC1: The username is the foreign key for the rent.
-CONSTRAINT AIC1 FOREIGN KEY (username) REFERENCES players (username)
+	primary key (username, rentamt)
 );
 
-
+ALTER TABLE rent
+ADD FOREIGN KEY (username) REFERENCES players(username)
+ALTER TABLE plays
+ADD FOREIGN KEY (username) REFERENCES players(username)
+ALTER TABLE plays
+ADD FOREIGN KEY (gameID) REFERENCES game (gameID)
+ALTER TABLE special_spaces
+ADD FOREIGN KEY (locationnumber) REFERENCES properties(location)
 
 SET FEEDBACK OFF
-
 --< The INSERT statements that populate the tables>
 --Important: Keep the number of rows in each table small enough so that the results of your
 --queries can be verified by hand. See the Sailors database as an example.
@@ -230,7 +227,7 @@ ORDER BY	SUM(endbalance) DESC;
 SELECT P.username, P.firstname, P.gamepiece		
 FROM	players P
 WHERE	P.bankaccount > 1000 AND
-	NOT EXISTS (SELECT * FROM playerhistory PR WHERE P.username = PR.username);
+	NOT EXISTS (SELECT * FROM playhistory PR WHERE P.username = PR.username);
 
 
 
@@ -250,11 +247,11 @@ WHERE
 
 
 --(Q8) An outer join query
---Select the username and number of properties of all players that have more than 3 properties.
+--Select the username and number of properties of all players that have properties with rent over 100.
 
-SELECT P.username, COUNT(properties)		
-FROM	players P LEFT OUTER JOIN properties PR ON P.username = PR.username AND
-	COUNT(properties) > 3;
+SELECT P.username		
+FROM	players P LEFT OUTER JOIN properties PR ON P.username = PR.username AND PR.rentperhouse > 100;
+--CONSTRAINT SPIC1 CHECK (property_type = 'Utility' AND price > 250)
 
 
 --(Q9) A RANK query
@@ -264,7 +261,7 @@ SELECT	RANK(140) WITHIN GROUP
 FROM properties;
 
 --(Q10) A Top-N query
---This query displays the top 5 most expensive properties
+--This query displays the top 5 most expensive properties and displays the propertyname, location, and price.
 SELECT		propertyname, location, price
 FROM		(SELECT *
 		FROM properties
